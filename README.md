@@ -4,14 +4,16 @@ Esta es la versión web de la aplicación de generación de códigos de barras p
 
 ## 🚀 Características
 
-- ✅ **Modo Manual**: Genera códigos por rango (DESDE-HASTA)
+- ✅ **Ingreso Manual**: Ingresa datos individuales (Orden GRAU y Nombres)
 - ✅ **Modo Excel**: Importa datos desde archivos Excel
+- ✅ **Búsqueda por Orden (Nexlab)**: Busca órdenes en base de datos SQL Server
 - ✅ **Múltiples formatos**: CODE128, CODE39, EAN13, EAN8, UPC-A, ITF
 - ✅ **Vista previa**: Visualiza códigos antes de imprimir
 - ✅ **Impresión directa**: Conecta con impresoras Zebra
 - ✅ **Descarga ZIP**: Descarga todos los códigos como imágenes
 - ✅ **Filtros avanzados**: Filtra y selecciona códigos específicos
 - ✅ **Interfaz moderna**: UI responsiva y fácil de usar
+- ✅ **Impresión doble**: Opción para imprimir cada etiqueta 2 veces
 
 ## 📋 Requisitos
 
@@ -42,6 +44,44 @@ streamlit run app.py
 La aplicación se abrirá automáticamente en tu navegador en `http://localhost:8501`
 
 ## 📖 Uso
+
+### Búsqueda por Orden (Nexlab) - NUEVO 🆕
+
+1. Selecciona "🔍 Búsqueda por Orden (Nexlab)" en la parte superior
+2. **Primera vez**: Configura la conexión a la base de datos
+   - Edita el archivo `modules/ordenes_nexlab.py`
+   - Configura: servidor, base de datos, usuario y contraseña
+   - Ver documentación completa en [CONFIGURACION_NEXLAB.md](CONFIGURACION_NEXLAB.md)
+3. Prueba la conexión haciendo clic en "🔌 Probar Conexión a Base de Datos"
+4. Ingresa el **Número de Orden** (ej: 1622485)
+5. Haz clic en **"🔍 Buscar"**
+6. Revisa los datos del paciente mostrados
+7. Selecciona el número de copias (1-10)
+8. Haz clic en **"🖨️ Imprimir Etiqueta"** o **"📥 Descargar Imagen"**
+
+**Características:**
+- Búsqueda automática en base de datos SQL Server
+- Generación automática de etiquetas con formato: `NúmeroOrden.01`
+- Visualización de datos del paciente (Nombre completo, Sexo, Estado)
+- Ver órdenes recientes (últimas 20 órdenes)
+- Impresión múltiple (1-10 copias)
+
+### Ingreso Manual
+
+1. Selecciona "📝 Ingreso Manual" en la parte superior
+2. Ingresa el **Número de Orden (GRAU)**
+3. Ingresa los **Apellidos y Nombres**
+4. Haz clic en **"➕ Agregar a la lista"**
+5. Repite los pasos 2-4 para agregar más etiquetas
+6. Haz clic en **"🔍 Vista Previa"** para generar los códigos
+7. Selecciona las etiquetas que deseas imprimir (0 = No, 1 = Sí)
+8. Haz clic en **"🖨️ Imprimir Seleccionadas"**
+
+**Características del Ingreso Manual:**
+- Agrega múltiples entradas a una lista
+- Elimina entradas individuales con el botón 🗑️
+- Limpia toda la lista con "🗑️ Limpiar Lista"
+- El formato del código se configura en el sidebar (ej: `{}.01`)
 
 ### Modo Manual
 
@@ -89,16 +129,18 @@ La aplicación se abrirá automáticamente en tu navegador en `http://localhost:
 
 ```
 web_app/
-├── app.py                 # Aplicación principal Streamlit
-├── requirements.txt       # Dependencias
-├── README.md             # Esta documentación
-├── modules/              # Módulos de la aplicación
+├── app.py                    # Aplicación principal Streamlit
+├── requirements.txt          # Dependencias
+├── README.md                 # Esta documentación
+├── CONFIGURACION_NEXLAB.md   # Guía de configuración del módulo Nexlab
+├── modules/                  # Módulos de la aplicación
 │   ├── __init__.py
-│   ├── barcode_web.py    # Generador de códigos
-│   ├── zebra_web.py      # Conexión con impresoras
-│   └── excel_web.py      # Lector de Excel
-├── assets/               # Recursos estáticos
-└── temp/                 # Archivos temporales
+│   ├── barcode_web.py        # Generador de códigos
+│   ├── zebra_web.py          # Conexión con impresoras
+│   ├── excel_web.py          # Lector de Excel
+│   └── ordenes_nexlab.py     # Búsqueda en base de datos SQL Server (NUEVO)
+├── assets/                   # Recursos estáticos
+└── temp/                     # Archivos temporales
 ```
 
 ## 🔍 Diferencias con la Versión de Escritorio
@@ -134,6 +176,13 @@ web_app/
 - Verifica la conexión con la impresora
 - Revisa que la impresora esté configurada correctamente
 - Prueba con un código de prueba primero
+
+### Problemas con Base de Datos (Nexlab)
+- Verifica que SQL Server esté activo
+- Asegúrate de tener instalado "ODBC Driver 17 for SQL Server" o superior
+- Revisa las credenciales en `modules/ordenes_nexlab.py`
+- Verifica que el usuario tenga permisos de lectura en las tablas
+- Ver [CONFIGURACION_NEXLAB.md](CONFIGURACION_NEXLAB.md) para más detalles
 
 ## 📝 Notas
 

@@ -41,7 +41,7 @@ class ZebraWebPrinter:
         """Establece la impresora a utilizar"""
         self.printer_name = printer_name
         
-    def generate_zpl(self, barcode_value, barcode_type='CODE128', nombre=None, grau=None):
+    def generate_zpl(self, barcode_value, barcode_type='CODE128', nombre=None, grau=None, sexo=None):
         """
         Genera código ZPL para imprimir
         
@@ -50,6 +50,7 @@ class ZebraWebPrinter:
             barcode_type (str): Tipo de código
             nombre (str): Nombre opcional
             grau (str): Grau opcional
+            sexo (str): Sexo del paciente (opcional, para órdenes Nexlab)
             
         Returns:
             str: Código ZPL
@@ -98,6 +99,11 @@ class ZebraWebPrinter:
         if nombre:
             nombre_y = numero_y + 45
             zpl += f"^FO{barcode_x},{nombre_y}^A0N,20,18^FD{nombre}^FS\n"
+            
+            # Agregar sexo debajo del nombre si existe
+            if sexo:
+                sexo_y = nombre_y + 25
+                zpl += f"^FO{barcode_x},{sexo_y}^A0N,18,16^FD{sexo}^FS\n"
         
         zpl += "^XZ"
         
@@ -177,6 +183,39 @@ class ZebraWebPrinter:
             
         except Exception as e:
             print(f"Error imprimiendo con texto: {str(e)}")
+            return False
+    
+    def send_to_printer(self, zpl_code):
+        """
+        Envía código ZPL directamente a la impresora
+        
+        Args:
+            zpl_code (str): Código ZPL a imprimir
+            
+        Returns:
+            bool: True si se imprimió correctamente
+        """
+        if not self.printer_name:
+            raise Exception("No hay impresora seleccionada")
+        
+        try:
+            # Enviar a impresora
+            hPrinter = win32print.OpenPrinter(self.printer_name)
+            try:
+                hJob = win32print.StartDocPrinter(hPrinter, 1, ("Barcode Label", None, "RAW"))
+                try:
+                    win32print.StartPagePrinter(hPrinter)
+                    win32print.WritePrinter(hPrinter, zpl_code.encode())
+                    win32print.EndPagePrinter(hPrinter)
+                finally:
+                    win32print.EndDocPrinter(hPrinter)
+            finally:
+                win32print.ClosePrinter(hPrinter)
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error enviando a impresora: {str(e)}")
             return False
     
     def test_connection(self):

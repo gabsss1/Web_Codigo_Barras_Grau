@@ -31,13 +31,17 @@ class ExcelWebReader:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"No se encontró el archivo: {file_path}")
             
+            # Verificar tamaño del archivo
+            if os.path.getsize(file_path) == 0:
+                raise ValueError("El archivo está vacío")
+            
             self.header_row = header_row
             
-            # Leer Excel con header personalizado
+            # Leer Excel con header personalizado usando openpyxl
             if sheet_name:
-                self.df = pd.read_excel(file_path, sheet_name=sheet_name, header=header_row)
+                self.df = pd.read_excel(file_path, sheet_name=sheet_name, header=header_row, engine='openpyxl')
             else:
-                self.df = pd.read_excel(file_path, header=header_row)
+                self.df = pd.read_excel(file_path, header=header_row, engine='openpyxl')
             
             # Limpiar datos
             self.df = self.df.dropna(how='all')
@@ -130,11 +134,15 @@ class ExcelWebReader:
         if not self.file_path or not os.path.exists(self.file_path):
             return []
         
+        # Verificar tamaño del archivo
+        if os.path.getsize(self.file_path) == 0:
+            raise ValueError("El archivo está vacío")
+        
         try:
-            xl_file = pd.ExcelFile(self.file_path)
+            xl_file = pd.ExcelFile(self.file_path, engine='openpyxl')
             return xl_file.sheet_names
-        except:
-            return []
+        except Exception as e:
+            raise Exception(f"Error leyendo archivo Excel: {str(e)}")
     
     def get_preview_data(self, max_rows: int = 10) -> Optional[pd.DataFrame]:
         """
